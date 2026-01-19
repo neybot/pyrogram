@@ -234,16 +234,20 @@ def get_peer_id(peer: raw.base.Peer) -> int:
 
 
 def get_peer_type(peer_id: int) -> str:
-    if peer_id < 0:
-        if MIN_CHAT_ID <= peer_id:
-            return "chat"
+    peer_id_str = str(peer_id)  # Converte o peer_id para string para verificar o prefixo
 
-        if MIN_CHANNEL_ID <= peer_id < MAX_CHANNEL_ID:
-            return "channel"
-    elif 0 < peer_id <= MAX_USER_ID:
+    if not peer_id_str.startswith("-"):  # IDs positivos representam usuários
         return "user"
+    elif peer_id_str.startswith("-100"):  # IDs com prefixo "-100" são canais privados
+        return "channel"
+    else:  # IDs negativos que não começam com "-100" são chats ou grupos privados
+        return "chat"
 
-    raise ValueError(f"Peer id invalid: {peer_id}")
+# Exemplo de uso
+print(get_peer_type(-10051622484))  # Output: channel
+print(get_peer_type(-2200488212))  # Output: chat
+print(get_peer_type(123456789))    # Output: user
+
 
 
 def get_channel_id(peer_id: int) -> int:
